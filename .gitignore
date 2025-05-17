@@ -1,2 +1,5 @@
 .idea/
 /Modulo2-Programacion/Clase3/videos_clase3/pyvenv.cfg
+videos_clase3/
+__pycache__
+
