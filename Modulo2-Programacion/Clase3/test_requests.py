@@ -3,14 +3,17 @@ import requests
 url = "http://127.0.0.1:8000/users/"
 
 user_data = {
-    "username":"jexuxEstangaPiparrategi",
-    "email":"jexux@estanga.com",
-    "age":50
+    "username":"Unai",
+    "email":"jexunai@estanga.com",
+    "age":12
 }
-
-print("Hola")
 
 response = requests.post(url, json=user_data)
 print(response)
 print(f"Código de respuesta: {response.status_code}")
-print(f"Respuesta: {response.json()}")
+
+if response.headers.get("content-type") == "application/json":
+    print("Respuesta en formato JSON")
+    print(f"Respuesta: {response.json()}")
+else:
+    print("Respuesta en formato no JSON")
