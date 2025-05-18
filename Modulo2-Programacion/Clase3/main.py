@@ -70,47 +70,6 @@ def enviar_email_bienvenida(email:str):
     time.sleep(10)
     logger.info(f"Email enviado a {email}")
 
-# ## Endpoints API Fórmula 1
-#
-# ## Pilotos (Drivers)
-# GET /drivers                           - Listar todos los pilotos
-# GET /drivers/{driver_id}              - Obtener información de un piloto
-# GET /drivers/{driver_id}/results      - Resultados de un piloto
-# GET /drivers/{driver_id}/wins         - Carreras ganadas por el piloto
-# GET /drivers/search?name=alonso       - Buscar piloto por nombre
-#
-# ## Equipos (Constructors)
-# GET /constructors                             - Listar todos los equipos
-# GET /constructors/{constructor_id}            - Info de un equipo
-# GET /constructors/{constructor_id}/drivers    - Pilotos del equipo
-# GET /constructors/{constructor_id}/wins       - Carreras ganadas por el equipo
-#
-# ## Carreras (Races)
-# GET /races                             - Lista de todas las carreras
-# GET /races/{race_id}                   - Detalles de una carrera
-# GET /races/latest                      - Última carrera
-# GET /races/year/{year}                 - Carreras de un año específico
-# GET /races/{race_id}/results           - Resultados de la carrera
-#
-# ## Circuitos
-# GET /circuits                          - Lista de circuitos
-# GET /circuits/{circuit_id}            - Info de un circuito
-# GET /circuits/{circuit_id}/races      - Carreras celebradas en el circuito
-#
-# ## Temporadas
-# GET /seasons                           - Lista de temporadas
-# GET /seasons/{year}                    - Resumen de la temporada
-# GET /seasons/{year}/champion          - Campeón del año
-# GET /seasons/{year}/standings         - Clasificación final
-#
-# ## Extras
-# GET /standings/drivers?year=2023           - Clasificación de pilotos de un año
-# GET /standings/constructors?year
-
-
-
-
-
 @app.get("/hello")
 def initial_greeting():
     logger.info("Recibida peticion saludo generico")

@@ -20,8 +20,24 @@ logger = logging.getLogger(__name__)
 # --- DB setup ---
 DATABASE_URL = "sqlite:///./formulauno.db"
 
+"""
+* create_engine crea una instancia de conexión con la base de datos.
+* connect_args={"check_same_thread"} es un parámetro específico de SQLite, 
+  que permite que la conexión se comparta entre distintos hilos (FastAPI usa hilos 
+  para atender peticiones y SQLite no lo permite por defecto).
+"""
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+"""
+* sessionmaker es una fábrica de sesiones: cada vez que haces SessionLocal(), 
+  obtienes una nueva conexión/instancia de trabajo con la base de datos.
+"""
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+
+"""
+* Esto crea una clase base de la que heredan tus modelos.
+* SQLAlchemy la necesita para saber qué clases representan tablas.
+"""
 Base = declarative_base()
 
 class PilotosDB(Base):
@@ -31,13 +47,18 @@ class PilotosDB(Base):
     victorias = Column(Integer, unique=True, index=True)
     anosactivo = Column(String, nullable=True)
 
+"""
+* Base.metadata contiene información sobre todos los modelos que se han declarado (es decir, las clases que heredan de Base).
+* .create_all() genera y ejecuta las instrucciones CREATE TABLE necesarias en la base de datos, siempre que no existan.
+* bind=engine indica a qué base de datos debe conectarse para crear las tablas.
+"""
 Base.metadata.create_all(bind=engine)
 
 # --- Pydantic model ---
 class Pilotos(BaseModel):
-    pilotos: str = Field(..., min_length=3, description="Nombre de usuario (mínimo 3 caracteres)")
-    victorias: int = Field(..., description="Email del usuario")
-    anosactivo: str = Field(None, ge=0, description="Edad no negativa (opcional)")
+    pilotos: str = Field(..., min_length=3, description="Nombre de piloto (mínimo 3 caracteres)")
+    victorias: int = Field(..., description="Victorias del piloto")
+    anosactivo: str = Field(None, description="Años activos del piloto")
 
     @field_validator("pilotos")
     def username_with_values(cls, value):
@@ -48,7 +69,7 @@ class Pilotos(BaseModel):
     @model_validator(mode="after")
     def long_username_if_age_ge_50(cls, instance):
         if instance.victorias is not None and instance.victorias >= 5:
-            if len(instance.pilotos) > 12:
+            if len(instance.pilotos) > 20:
                 raise ValueError("You must provide a driver name with 12 chars or less")
         return instance
 
@@ -88,25 +109,25 @@ def custom_greeting(name: str):
 def create_user(pilotos: Pilotos):
     logger.info(f"📥 Registro de usuario recibido: {pilotos}")
     
-    # db = SessionLocal()
-    # existing = db.query(PilotosDB).filter(PilotosDB.pilotos == pilotos.pilotos).first()
-    # if existing:
-    #     db.close()
-    #     raise HTTPException(status_code=400, detail="El piloto ya está registrado")
-    #
-    # pilotos_db = PilotosDB(pilotosname=pilotos.pilotosname, victorias=pilotos.victorias, anosactivo=pilotos.anosactivo)
-    # db.add(pilotos_db)
-    # db.commit()
-    # db.refresh(pilotos_db)
-    # db.close()
-    # logger.info(f"✅ Piloto guardado: {pilotos_db.pilotosname}")
+    db = SessionLocal()
+    existing = db.query(PilotosDB).filter(PilotosDB.pilotos == pilotos.pilotos).first()
+    if existing:
+        db.close()
+        raise HTTPException(status_code=400, detail="El piloto ya está registrado")
+
+    pilotos_db = PilotosDB(pilotos=pilotos.pilotos, victorias=pilotos.victorias, anosactivo=pilotos.anosactivo)
+    db.add(pilotos_db)
+    db.commit()
+    db.refresh(pilotos_db)
+    db.close()
+    logger.info(f"✅ Piloto guardado: {pilotos_db.pilotos}")
     # Tarea en segundo plano
     # background_tasks.add_task(enviar_email_bienvenida, pilotos.email)
     return {
-        "msg": "Usuario registrado correctamente",
-        # "pilotos": {
-        #     "piloto": pilotos_db.pilotos,
-        #     "victorias": pilotos_db.victorias,
-        #     "anosactivo": pilotos_db.anosactivo
-        # }
+        "msg": "Piloto registrado correctamente",
+        "pilotos": {
+            "piloto": pilotos_db.pilotos,
+            "victorias": pilotos_db.victorias,
+            "anosactivo": pilotos_db.anosactivo
+        }
     }
