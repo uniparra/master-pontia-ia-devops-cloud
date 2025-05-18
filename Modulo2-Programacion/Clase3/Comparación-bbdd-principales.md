@@ -16,7 +16,7 @@ Ejemplo de conexión:
 
 ```python
 DATABASE_URL = "sqlite:///./usuarios.db"
-
+```
 Esto guarda el archivo `usuarios.db` en el mismo directorio.
 
 🧠 **¿Pero es "la mejor opción"?**  
@@ -45,7 +45,7 @@ Ejemplo conexión:
 
 ```python
 DATABASE_URL = "postgresql://user:password@localhost:5432/mydb"
-
+```
 ### MySQL / MariaDB
 
 - Popular, estable, especialmente en entornos heredados o PHP.  
