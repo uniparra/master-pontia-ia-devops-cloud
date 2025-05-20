@@ -5,9 +5,9 @@ url = "http://127.0.0.1:8000/pilotos/"
 print("HOlahola")
 
 pilotos_data = {
-    "pilotos":"Fernando Alonso",
-    "victorias":32,
-    "anosactivo":"33"
+    "pilotos":"Hamilton",
+    "victorias":30,
+    "anosactivo":"20"
 }
 
 response = requests.post(url, json=pilotos_data)

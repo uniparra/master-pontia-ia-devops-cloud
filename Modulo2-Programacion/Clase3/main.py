@@ -57,6 +57,7 @@ class UserDB(Base):
     age = Column(Integer, nullable=True)
 
 Base.metadata.create_all(bind=engine)
+
 app = FastAPI(
     title="Mi primera api",
     description="Una API de ejemplo",

@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy import Column, Integer, String, create_engine, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -44,7 +44,7 @@ class PilotosDB(Base):
     __tablename__ = "formulauno"
 
     pilotos = Column(String, primary_key=True, index=True)
-    victorias = Column(Integer, unique=True, index=True)
+    victorias = Column(Integer, unique=False, index=True)
     anosactivo = Column(String, nullable=True)
 
 """
@@ -104,6 +104,43 @@ def custom_greeting(name: str):
 #     import time
 #     time.sleep(10)  # Simular retardo para ver la asincronía
 #     logger.info(f"✅ Email de bienvenida enviado a {email}")
+@app.get("/pilotos/maxGanador")
+def get_max_ganador():
+    logger.info(f"Recibida petición para obtener el piloto con más victorias")
+    db = SessionLocal()
+    max_victorias = db.query(func.max(PilotosDB.victorias)).scalar()
+    piloto = db.query(PilotosDB).filter(PilotosDB.victorias == max_victorias).all()
+    piloto = db.query(PilotosDB).order_by(PilotosDB.victorias.desc()).all()  #<-- otra solución a esto? query(func.max(PilotosDB.victorias)).first()
+    db.close()
+    logger.info(f"se obtuvo con exito el piloto con más victorias")
+    if not piloto:
+        raise HTTPException(status_code=404, detail="Piloto no encontrado")
+
+    return {
+        "msg": "Piloto encontrado",
+        "piloto": piloto.json()
+    }
+
+
+@app.get("/pilotos/{nombre_piloto}")
+def get_user(nombre_piloto: str):
+    logger.info(f"Recibida petición para obtener piloto con ID: {nombre_piloto}")
+    nombreConEspacio = nombre_piloto.replace("_", " ")
+    db = SessionLocal()
+    piloto = db.query(PilotosDB).filter(PilotosDB.pilotos == nombreConEspacio).first()
+    db.close()
+
+    if not piloto:
+        raise HTTPException(status_code=404, detail="Piloto no encontrado")
+
+    return {
+        "msg": "Piloto encontrado",
+        "piloto": {
+            "piloto": piloto.pilotos,
+            "victorias": piloto.victorias,
+            "anosactivo": piloto.anosactivo
+        }
+    }
 
 @app.post("/pilotos/")
 def create_user(pilotos: Pilotos):
