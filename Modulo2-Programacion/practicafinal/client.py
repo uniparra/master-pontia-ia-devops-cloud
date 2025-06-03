@@ -86,7 +86,20 @@ class FormulaUnoClient:
         response = requests.get(url)
         print(f"Código de respuesta: {response.status_code}")
         if response.headers.get("content-type") == "application/json":
-            print(f"Respuesta: {response.json()}")
+            data = response.json()
+            print(f"Respuesta: {data}")
+            # Comprobar si aparece 'Fernando Alonso' en los ganadores
+            found = False
+            winners = data.get("winners", [])
+            for winner in winners:
+                nombre_completo = f"{winner.get('name', '')} {winner.get('surname', '')}".strip().lower()
+                if "fernando alonso" in nombre_completo:
+                    found = True
+                    break
+            if found:
+                print("Fernando Alonso aparece en los resultados.")
+            else:
+                print("Fernando Alonso NO aparece en los resultados.")
         else:
             print("Respuesta en formato no JSON")
 
@@ -95,7 +108,7 @@ if __name__ == "__main__":
     print("== Crear resultado ==")
     client.crear_resultado()
     print("\n== Eliminar resultado (ID 23783) ==")
-    client.eliminar_resultado(23785)
+    client.eliminar_resultado(23787)
     print("\n== Obtener inventario ==")
     client.obtener_inventario()
     print("\n== Obtener circuitos ==")
