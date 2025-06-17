@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_formula1
+    restart: always
+    environment:
+      POSTGRES_DB: formula1
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./dbformula1_bueno:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"
+
+  crud:
+    build: .
+    container_name: formula1_crud
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://test:test@db:5432/formula1
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:

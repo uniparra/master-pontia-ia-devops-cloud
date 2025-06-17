@@ -1,0 +1,6 @@
+venv/
+migracion_de_datos.py
+*.load
+*.pyc
+*.sqlite
+__pycache__/
